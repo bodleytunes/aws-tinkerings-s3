@@ -24,7 +24,9 @@ def open_s3fs_folder():
         key=aws_creds["key_id"],
         secret=aws_creds["secret"],
     )
-    fs.ls(bucket_a)
+    file_list = fs.ls(bucket_a)
+
+    return file_list
 
 
 def delete_exif_data(new_file: str):
@@ -41,9 +43,9 @@ def delete_exif_data(new_file: str):
 
 def main():
 
-    open_s3fs_folder()
+    file_list = open_s3fs_folder()
 
-    w = Watcher()
+    w = Watcher(file_list)
     w.run()
 
 
@@ -51,8 +53,9 @@ class Watcher:
 
     WATCH_PATH = os.path.join(ROOT_DIR, "images/bucket_a")
 
-    def __init__(self):
+    def __init__(self, file_list):
         self.observer = Observer()
+        self.file_list = file_list
 
     def run(self):
         event_handler = Handler()
