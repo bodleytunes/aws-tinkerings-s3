@@ -8,6 +8,8 @@ authors = ["Jon Clayton <m87tech@gmail.com>"]
 python = "^3.8"
 exif = "^1.2.1"
 watchdog = "^2.0.2"
+s3fs = "^0.6.0"
+aiobotocore = "^1.3.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

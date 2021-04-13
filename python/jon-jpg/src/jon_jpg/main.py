@@ -1,11 +1,30 @@
 import os, time
+import yaml
 
 from exif import Image
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
+import s3fs, aiobotocore
+
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+
+bucket_a = "jon-skyline-r33-fxnoqijf-location-a"
+bucket_b = ""
+
+
+def open_s3fs_folder():
+    # get aws iam creds
+    with open(r".aws_creds.yml") as file:
+        aws_creds = yaml.load(file, Loader=yaml.FullLoader)
+    # create instance of s3fs
+    fs = s3fs.S3FileSystem(
+        anon=False,
+        key=aws_creds["key_id"],
+        secret=aws_creds["secret"],
+    )
+    fs.ls("s3://jon-skyline-r33-fxnoqijf-location-a")
 
 
 def delete_exif_data(new_file: str):
@@ -13,12 +32,16 @@ def delete_exif_data(new_file: str):
         old_image = Image(filea)
         # delete exif metadata
         old_image.delete_all()
-    with open(os.path.join(ROOT_DIR, "images/bucket_b/lizard.jpg"), "wb") as fileb:
+    with open(
+        os.path.join(ROOT_DIR, "images/bucket_b/", os.path.basename(new_file)), "wb"
+    ) as fileb:
         # write file in new location
         fileb.write(old_image.get_file())
 
 
 def main():
+
+    open_s3fs_folder()
 
     w = Watcher()
     w.run()
