@@ -9,7 +9,7 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def delete_exif_data(new_file: str):
-    with open(os.path.join(ROOT_DIR, f"images/bucket_a/{new_file}"), "rb") as filea:
+    with open(os.path.join(new_file), "rb") as filea:
         old_image = Image(filea)
         # delete exif metadata
         old_image.delete_all()
@@ -59,6 +59,7 @@ class Handler(FileSystemEventHandler):
         elif event.event_type == "modified":
             # Taken any action here when a file is modified.
             print("Received modified event - %s." % event.src_path)
+            delete_exif_data(event.src_path)
 
 
 if __name__ == "__main__":
