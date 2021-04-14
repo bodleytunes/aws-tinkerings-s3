@@ -14,21 +14,6 @@ bucket_a = "images/bucket_a/s3"
 bucket_b = "images/bucket_b/s3"
 
 
-# def open_s3fs_folder():
-#    # get aws iam creds
-#    with open(os.path.join(ROOT_DIR, ".aws_creds.yml")) as file:
-#        aws_creds = yaml.load(file, Loader=yaml.FullLoader)
-#    # create instance of s3fs
-#    fs = s3fs.S3FileSystem(
-#        anon=False,
-#        key=aws_creds["key_id"],
-#        secret=aws_creds["secret"],
-#    )
-#    file_list = fs.ls(bucket_a)
-#
-#    return file_list
-
-
 def delete_exif_data(new_file: str):
     with open(os.path.join(new_file), "rb") as filea:
         old_image = Image(filea)
