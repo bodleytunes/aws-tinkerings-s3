@@ -12,6 +12,7 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 bucket_a = "images/bucket_a/s3"
 bucket_b = "images/bucket_b/s3"
+bucket_b_s3fs = "jon-skyline-r33-fwoid3dd-location-b"
 
 
 def delete_exif_data(new_file: str):
@@ -19,11 +20,27 @@ def delete_exif_data(new_file: str):
         old_image = Image(filea)
         # delete exif metadata
         old_image.delete_all()
+        # write to bucket b
+        open_s3fs_folder(src_file=os.path.join(new_file))
     with open(
         os.path.join(ROOT_DIR, bucket_b, os.path.basename(new_file)), "wb"
     ) as fileb:
         # write file in new location
         fileb.write(old_image.get_file())
+
+
+def open_s3fs_folder(src_file):
+    # get aws iam creds
+    with open(os.path.join(ROOT_DIR, ".aws_creds.yml")) as file:
+        aws_creds = yaml.load(file, Loader=yaml.FullLoader)
+    # create instance of s3fs
+    fs = s3fs.S3FileSystem(
+        anon=False,
+        key=aws_creds["key_id"],
+        secret=aws_creds["secret"],
+    )
+    file_list = fs.ls(bucket_b_s3fs)
+    file.put(src_file, bucket_b_s3fs)
 
 
 def main():
