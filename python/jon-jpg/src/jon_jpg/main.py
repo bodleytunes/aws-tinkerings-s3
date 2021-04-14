@@ -1,4 +1,5 @@
-import os, time
+import os, time, io
+from io import BytesIO
 import yaml
 
 from exif import Image
@@ -12,40 +13,29 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 bucket_a = "images/bucket_a/s3"
 bucket_b = "images/bucket_b/s3"
-bucket_b_s3fs = "jon-skyline-r33-fwoid3dd-location-b"
+tmp = "images/tmp"
 
 
 def delete_exif_data(new_file: str):
+    # hack to fix the 0kb issue - needs sorting
+    time.sleep(5)
     with open(os.path.join(new_file), "rb") as filea:
+
         old_image = Image(filea)
-        # delete exif metadata
-        old_image.delete_all()
-        # write to bucket b
-        open_s3fs_folder(src_file=os.path.join(new_file))
+
+        if old_image.has_exif:
+            old_image.delete_all()
+
+    ## save in s3 bucket B
     with open(
         os.path.join(ROOT_DIR, bucket_b, os.path.basename(new_file)), "wb"
     ) as fileb:
+        # fileb.seek(0)
         # write file in new location
         fileb.write(old_image.get_file())
 
 
-def open_s3fs_folder(src_file):
-    # get aws iam creds
-    with open(os.path.join(ROOT_DIR, ".aws_creds.yml")) as file:
-        aws_creds = yaml.load(file, Loader=yaml.FullLoader)
-    # create instance of s3fs
-    fs = s3fs.S3FileSystem(
-        anon=False,
-        key=aws_creds["key_id"],
-        secret=aws_creds["secret"],
-    )
-    file_list = fs.ls(bucket_b_s3fs)
-    file.put(src_file, bucket_b_s3fs)
-
-
 def main():
-
-    # file_list = open_s3fs_folder()
 
     w = Watcher()
     w.run()
