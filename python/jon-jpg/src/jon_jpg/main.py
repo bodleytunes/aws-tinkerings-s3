@@ -10,23 +10,23 @@ import s3fs
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-bucket_a = "jon-skyline-r33-fxnoqijf-location-a"
-bucket_b = "jon-skyline-r33-fwoid3dd-location-b"
+bucket_a = "images/bucket_a/s3"
+bucket_b = "images/bucket_b/s3"
 
 
-def open_s3fs_folder():
-    # get aws iam creds
-    with open(os.path.join(ROOT_DIR, ".aws_creds.yml")) as file:
-        aws_creds = yaml.load(file, Loader=yaml.FullLoader)
-    # create instance of s3fs
-    fs = s3fs.S3FileSystem(
-        anon=False,
-        key=aws_creds["key_id"],
-        secret=aws_creds["secret"],
-    )
-    file_list = fs.ls(bucket_a)
-
-    return file_list
+# def open_s3fs_folder():
+#    # get aws iam creds
+#    with open(os.path.join(ROOT_DIR, ".aws_creds.yml")) as file:
+#        aws_creds = yaml.load(file, Loader=yaml.FullLoader)
+#    # create instance of s3fs
+#    fs = s3fs.S3FileSystem(
+#        anon=False,
+#        key=aws_creds["key_id"],
+#        secret=aws_creds["secret"],
+#    )
+#    file_list = fs.ls(bucket_a)
+#
+#    return file_list
 
 
 def delete_exif_data(new_file: str):
@@ -35,7 +35,7 @@ def delete_exif_data(new_file: str):
         # delete exif metadata
         old_image.delete_all()
     with open(
-        os.path.join(ROOT_DIR, "images/bucket_b/", os.path.basename(new_file)), "wb"
+        os.path.join(ROOT_DIR, bucket_b, os.path.basename(new_file)), "wb"
     ) as fileb:
         # write file in new location
         fileb.write(old_image.get_file())
@@ -43,19 +43,18 @@ def delete_exif_data(new_file: str):
 
 def main():
 
-    file_list = open_s3fs_folder()
+    # file_list = open_s3fs_folder()
 
-    w = Watcher(file_list)
+    w = Watcher()
     w.run()
 
 
 class Watcher:
 
-    WATCH_PATH = os.path.join(ROOT_DIR, "images/bucket_a")
+    WATCH_PATH = os.path.join(ROOT_DIR, bucket_a)
 
-    def __init__(self, file_list):
+    def __init__(self):
         self.observer = Observer()
-        self.file_list = file_list
 
     def run(self):
         event_handler = Handler()
@@ -85,7 +84,7 @@ class Handler(FileSystemEventHandler):
         elif event.event_type == "modified":
             # Taken any action here when a file is modified.
             print("Received modified event - %s." % event.src_path)
-            delete_exif_data(event.src_path)
+            # delete_exif_data(event.src_path)
 
 
 if __name__ == "__main__":
