@@ -23,7 +23,7 @@ tmp = "images/tmp"
 
 
 def delete_exif_data(new_file: str):
-    # hack to fix the 0kb issue - needs sorting
+    # temp to fix the 0kb issue - needs sorting
     time.sleep(5)
     with open(os.path.join(new_file), "rb") as filea:
 
