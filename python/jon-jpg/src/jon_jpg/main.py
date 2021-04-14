@@ -1,13 +1,19 @@
 import os, time, io
-from io import BytesIO
 import yaml
 
 from exif import Image
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-import s3fs
+"""
+Server has both buckets mounted to local filesystem via s3fs-fuse
 
+cat /etc/fstab
+
+jon-skyline-r33-fxnoqijf-location-a  /root/vscode/aws-tinkerings/python/jon-jpg/src/jon_jpg/images/bucket_a/s3 fuse.s3fs _netdev,allow_other,dbglevel=debug,allow_other 0 0
+jon-skyline-r33-fwoid3dd-location-b  /root/vscode/aws-tinkerings/python/jon-jpg/src/jon_jpg/images/bucket_b/s3 fuse.s3fs _netdev,allow_other,dbglevel=debug,allow_other 0 0
+
+"""
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -30,7 +36,6 @@ def delete_exif_data(new_file: str):
     with open(
         os.path.join(ROOT_DIR, bucket_b, os.path.basename(new_file)), "wb"
     ) as fileb:
-        # fileb.seek(0)
         # write file in new location
         fileb.write(old_image.get_file())
 
