@@ -1,1 +1,3 @@
 terraform/variables.secret.tf
+workspace.code-workspace
+python/jon-jpg/src/jon_jpg/.aws_creds.yml
